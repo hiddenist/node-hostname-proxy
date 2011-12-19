@@ -4,12 +4,12 @@ Runs a master node process to redirect hostnames to the correct node process
 port using http-proxy. Think something like Apache virtual hosts.
 
 ## Requirements
-Tested to work using:
-* Node 0.5.0
-* http-proxy 0.7.6
+Node.js version 0.5.0
+http-proxy version 0.7.6
 
 ## Running
-All you need to do is run app.js as root
+All you need to do is run app.js as root, like so!
+
 ```
 sudo node app.js
 ```
