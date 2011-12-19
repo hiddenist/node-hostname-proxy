@@ -1,10 +1,10 @@
+// Edit this file and rename it config.js
 module.exports = {
 	hostnames: {
-		'foo.bar' : 8000,
+		'foo.bar' : 8000, // Runs localhost:8000 at http://foo.bar/
 		'mail.foo.bar' : 8001
 	},
-	// Don't define these in the hostnames object - it's redundant
 	redirects: {
-		'www.foo.bar' : 'foo.bar'
+		'www.foo.bar' : 'foo.bar' // Redirects www.foo.bar to foo.bar
 	}
 }
