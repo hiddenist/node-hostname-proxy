@@ -1,29 +1,34 @@
+/*
+ * Runs a master node process to redirect hostnames to the correct node process
+ * port. Think something like Apache virtual hosts.
+ *
+ * The data is populated from the config.js file, which expects a "hostnames" 
+ * object with keys as the hostname, and data as the port.  The config file can
+ * also provide a "redirects" object to define which hostnames should redirect
+ * other hostnames (for example, www to non-www).
+ *
+ * See the config.sample.js file for a concrete example.
+ *
+ */
+
+
 var http = require('http'),
 	httpProxy = require('http-proxy'),
 	config = require('./config');
 
 
-var ports = [];
-
-// Populate ports
+// Initialize portStatus with ports from the hostnames object
+var portStatus = {};
 for (var host in config.hostnames) {
-	var found = false;
-	for (var i in ports) {
-		if (ports[i] == config.hostnames[host]) {
-			found = true;
-			break;
-		}
-	}
-	
-	if (!found)
-		ports.push(config.hostnames[host]);
+	portStatus[parseInt(config.hostnames[host])] = 0;
 }
 
-var portStatus = {};
+// Populate the status of each port; update every file seconds
+checkPorts();
+setInterval(checkPorts, 5000);
 
 function checkPorts() {
-	for (var i in ports) {
-		var port = ports[i];
+	for (var port in portStatus) {
 		checkPort(port);
 	}
 }
@@ -37,11 +42,7 @@ function checkPort(port, callback) {
 	};})(port);
 
 	http.get({ host: 'localhost', port: port, path: '/' }, handle).on('error', handle);
-	
 };
-
-checkPorts();
-setInterval(checkPorts, 5000);
 
 function isAlive(port) {
 	if (port && portStatus[port] != 'ECONNREFUSED')
@@ -87,7 +88,7 @@ httpProxy.createServer(function (req, res, proxy) {
 }).listen(80);
 
 console.log("Routing requests");
-console.log("ports: ");
+console.log("hostnames: ");
 console.log(config.hostnames);
 console.log("redirects: ");
 console.log(config.redirects);
