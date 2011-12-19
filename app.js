@@ -1,6 +1,6 @@
 /*
  * Runs a master node process to redirect hostnames to the correct node process
- * port. Think something like Apache virtual hosts.
+ * port using http-proxy. Think something like Apache virtual hosts.
  *
  * The data is populated from the config.js file, which expects a "hostnames" 
  * object with keys as the hostname, and data as the port.  The config file can
@@ -10,7 +10,6 @@
  * See the config.sample.js file for a concrete example.
  *
  */
-
 
 var http = require('http'),
 	httpProxy = require('http-proxy'),
