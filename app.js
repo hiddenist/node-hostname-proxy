@@ -92,7 +92,6 @@ httpProxy.createServer(function (req, res, proxy) {
 			}
 		});
 	} else {
-		console.log("Routing " + req.headers.host + " to :" + port);
 		route(port);
 	}
 	
