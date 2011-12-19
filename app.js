@@ -22,9 +22,9 @@ for (var host in config.hostnames) {
 	portStatus[parseInt(config.hostnames[host])] = 0;
 }
 
-// Populate the status of each port; update every file seconds
+// Populate the status of each port; update every five minutes
 checkPorts();
-setInterval(checkPorts, 5000);
+setInterval(checkPorts, 5*60*1000);
 
 function checkPorts() {
 	for (var port in portStatus) {
@@ -49,39 +49,51 @@ function isAlive(port) {
 }
 
 httpProxy.createServer(function (req, res, proxy) {
-	function route() {
-		proxy.proxyRequest(req, res, port, 'localhost');
+	
+	// Function definitions ("define shit"):
+
+	function route(port) {
+		proxy.proxyRequest(req, res, { host: 'localhost', port: port });
 	}
 
 	function send404() {
 		res.writeHead(404, {'Content-Type': 'text/html'});
 		res.write("The page you're looking for isn't here.");
-		// res.write(JSON.stringify(req.headers, true, 2));
 		res.end();
 	}
 	
 	function redirect(domain) {
+		// todo: Should check for https
 		res.writeHead(301, { 'Location': "http://" + domain + req.url });
 		res.end();
 	}
 
+
+	// Process the request ("do shit"):
+
 	var port = config.hostnames[req.headers.host];
-	if (!port) {
-		var domain = config.redirects[req.headers.host];
-		if (domain)
-			redirect(domain);
-		else
-			send404();
-	}
-	else if (!isAlive(port)) {
+	var domain = config.redirects[req.headers.host];
+
+	if (domain) {
+		console.log("Redirecting " + req.headers.host + " to " + domain);
+		redirect(domain);
+	} else if (!port) {
+		console.log(req.headers.host + " does not have a port defined - sending 404");
+		send404();
+	} else if (!isAlive(port)) {
+		console.log(req.headers.host + " appears to be down - verifying");
 		checkPort(port, function(port, code) {
-			if (code != 'ECONNREFUSED')
-				route();
-			else
+			if (code != 'ECONNREFUSED') { 
+				console.log(req.headers.host + " is up - routing to :" + port);
+				route(port);
+			} else {
+				console.log(req.headers.host + " verified down - sending 404");
 				send404();
+			}
 		});
 	} else {
-		route();
+		console.log("Routing " + req.headers.host + " to :" + port);
+		route(port);
 	}
 	
 }).listen(80);
