@@ -9,7 +9,7 @@ port using http-proxy. Think something like Apache virtual hosts.
 * http-proxy version 0.7.6
 
 ## Running
-All you need to do is run app.js as root, like so!
+All you need to do is run app.js as root.  Most simply, like so:
 
 ```
 sudo node app.js
